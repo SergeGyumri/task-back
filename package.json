@@ -1,0 +1,32 @@
+{
+  "name": "task-back",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "nodemon -r esm -r dotenv/config bin/www.js",
+    "migrate": "node -r esm -r dotenv/config ./bin/migrate.js",
+    "prod": "node -r esm  -r dotenv/config bin/www.js"
+  },
+  "dependencies": {
+    "bluebird": "^3.7.2",
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "dotenv": "^16.0.3",
+    "esm": "^3.2.25",
+    "express": "~4.16.1",
+    "http-errors": "^2.0.0",
+    "jade": "~1.11.0",
+    "jsonwebtoken": "^8.5.1",
+    "md5": "^2.3.0",
+    "moment": "^2.29.4",
+    "morgan": "~1.9.1",
+    "mysql2": "^2.3.3",
+    "sequelize": "^6.25.2",
+    "socket.io": "^4.5.3",
+    "uuid": "^9.0.0",
+    "validatorjs": "^3.22.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  }
+}
