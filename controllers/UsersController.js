@@ -22,18 +22,15 @@ class UsersController {
         attributes: ['id'],
         raw: true,
       })
-      setTimeout(async () => {
-        const user = await Users.create({
-          roomId: room[0].id,
-        });
-        const token = JWT.sign({userId: user.id, roomId: user.roomId}, JWT_SECRET);
-        res.json({
-          status: 'ok',
-          token,
-        })
+      const user = await Users.create({
+        roomId: room[0].id,
+      });
+      const token = JWT.sign({userId: user.id, roomId: user.roomId}, JWT_SECRET);
+      res.json({
+        status: 'ok',
+        token,
+      })
 
-
-      }, 5000)
     } catch (e) {
       next(e);
     }
