@@ -1,6 +1,7 @@
 import {DataTypes, Model} from "sequelize";
 import sequelize from "../services/sequelize";
 import Rooms from "./Rooms";
+import Age from "./Age";
 
 class RoomMessages extends Model {
 
@@ -21,8 +22,8 @@ RoomMessages.init({
     type: DataTypes.BIGINT,
     allowNull: false,
   },
-  roomId: {
-    type: DataTypes.BIGINT,
+  senderName: {
+    type: DataTypes.STRING,
     allowNull: false,
   },
 }, {
@@ -30,6 +31,10 @@ RoomMessages.init({
   tableName: 'roomMessages',
   modelName: 'roomMessages',
 });
-
+RoomMessages.belongsTo(Rooms, {
+  foreignKey: 'roomId',
+  onDelete: 'cascade',
+  onUpdate: 'cascade',
+});
 
 export default RoomMessages;

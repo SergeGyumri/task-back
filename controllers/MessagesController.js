@@ -40,14 +40,15 @@ class MessagesController {
   static sendMessage = async (req, res, next) => {
     try {
       const {message = ''} = req.body;
-      const {roomId = '', userId = ''} = req;
+      const {roomId = '', userId = '', userName = ''} = req;
       if (!message) {
         throw HttpErrors(404, 'no message')
       }
       const {dataValues} = await RoomMessages.create({
         message,
         senderId: userId,
-        roomId
+        roomId,
+        senderName: userName
       })
       Socket.emit('room_' + roomId, 'new-message', dataValues)
       res.json({

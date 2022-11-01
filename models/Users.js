@@ -13,6 +13,15 @@ Users.init({
     autoIncrement: true,
     primaryKey: true,
   },
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  type: {
+    type: DataTypes.TINYINT,
+    allowNull: false,
+    defaultValue : 0
+  },
 }, {
   sequelize,
   tableName: 'users',

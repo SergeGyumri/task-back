@@ -19,12 +19,14 @@ function authorization(req, res, next) {
     const token = authorization.replace('Bearer ', '');
     const user = jwt.verify(token, JWT_SECRET);
     const userId = user.userId;
+    const userName = user.userName;
     const roomId = user.roomId;
     if (!userId) {
       throw HttpErrors(401);
     }
     req.userId = userId;
     req.roomId = roomId;
+    req.userName = userName;
     next();
   } catch (e) {
     next(e);

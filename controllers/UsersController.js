@@ -2,6 +2,7 @@ import {Users, Rooms} from "../models";
 import HttpErrors from "http-errors";
 import JWT from "jsonwebtoken";
 import jwt from "jsonwebtoken";
+import validate from "../services/validate";
 
 const {JWT_SECRET} = process.env;
 
@@ -9,14 +10,13 @@ class UsersController {
 
   static goToChat = async (req, res, next) => {
     try {
-      const {ageId = '', interestId = ''} = req.body;
-      if (!ageId || !interestId) {
-        throw HttpErrors(422, {
-          errors: {
-            error: [`choose ${!ageId && !interestId ? 'age and interest' : !ageId ? 'age' : 'interest'}`]
-          }
-        });
-      }
+      const {ageId = '', interestId = '', userName = ''} = req.body;
+      validate(req.body, {
+        ageId: 'numeric|required',
+        interestId: 'numeric|required',
+        userName: 'string|min:3|max:15|required',
+      });
+
       const room = await Rooms.findOrCreate({
         where: {ageId, interestId},
         attributes: ['id'],
@@ -24,8 +24,9 @@ class UsersController {
       })
       const user = await Users.create({
         roomId: room[0].id,
+        name: userName,
       });
-      const token = JWT.sign({userId: user.id, roomId: user.roomId}, JWT_SECRET);
+      const token = JWT.sign({userId: user.id, roomId: user.roomId, userName: user.name}, JWT_SECRET);
       res.json({
         status: 'ok',
         token,
@@ -50,13 +51,12 @@ class UsersController {
     }
   }
 
-
   static myAccount = async (req, res, next) => {
     try {
       const {userId} = req;
       const user = await Users.findOne({
         where: {id: userId},
-        attributes: ['id', 'roomId'],
+        attributes: ['id', 'roomId', 'name'],
         raw: true
       });
       res.json({
