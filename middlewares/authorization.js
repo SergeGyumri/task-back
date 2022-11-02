@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 const exclude = [
   'GET:/form/get-form',
   'POST:/users/go-to-chat',
+  'POST:/admin/login',
 ]
 
 function authorization(req, res, next) {
