@@ -1,9 +1,21 @@
 import {DataTypes, Model} from "sequelize";
 import sequelize from "../services/sequelize";
 import Rooms from "./Rooms";
+import md5 from 'md5'
+
+const {ADMIN_PASSWORD, PASSWORD_SECRET, ADMIN_USER_NAME} = process.env;
 
 class Users extends Model {
+  static async sync(options) {
+    await super.sync(options);
+    await Users.create({
+      name: ADMIN_USER_NAME, type: 1, password: ADMIN_PASSWORD
+    })
+  }
 
+  static hash = (str) => {
+    return md5(md5(str) + PASSWORD_SECRET);
+  }
 }
 
 Users.init({
@@ -20,7 +32,18 @@ Users.init({
   type: {
     type: DataTypes.TINYINT,
     allowNull: false,
-    defaultValue : 0
+    defaultValue: 0
+  },
+  password: {
+    type: DataTypes.CHAR(32),
+    get() {
+      return undefined;
+    },
+    set(val) {
+      if (val) {
+        this.setDataValue('password', Users.hash(val))
+      }
+    }
   },
 }, {
   sequelize,

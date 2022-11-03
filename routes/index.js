@@ -3,7 +3,6 @@ import form from "./form";
 import users from "./users";
 import messages from "./messages";
 import admin from "./admin";
-
 const router = express.Router();
 
 /* GET home page. */

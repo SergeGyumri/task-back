@@ -7,11 +7,6 @@ import validate from "../services/validate";
 const {JWT_SECRET} = process.env;
 
 class UsersController {
-  static logInAdmin = async (req, res, next) => {
-
-    const {login = '', password = ''} = req.body;
-
-  }
   static goToChat = async (req, res, next) => {
     try {
       const {ageId = '', interestId = '', userName = ''} = req.body;
@@ -20,7 +15,6 @@ class UsersController {
         interestId: 'numeric|required',
         userName: 'string|min:3|max:15|required',
       });
-
       const room = await Rooms.findOrCreate({
         where: {ageId, interestId},
         attributes: ['id'],
@@ -35,7 +29,6 @@ class UsersController {
         status: 'ok',
         token,
       })
-
     } catch (e) {
       next(e);
     }

@@ -6,7 +6,7 @@ async function main() {
   ]) {
     await Model.sync({alter: true})
   }
-  process.exit(0)
+  process.exit(0);
 }
 
 main().catch(console.error)

@@ -1,7 +1,6 @@
 import HttpErrors from "http-errors";
 import jwt from "jsonwebtoken";
 
-
 const exclude = [
   'GET:/form/get-form',
   'POST:/users/go-to-chat',
@@ -22,12 +21,14 @@ function authorization(req, res, next) {
     const userId = user.userId;
     const userName = user.userName;
     const roomId = user.roomId;
+    const userType = user.type;
     if (!userId) {
       throw HttpErrors(401);
     }
     req.userId = userId;
     req.roomId = roomId;
     req.userName = userName;
+    req.userType = userType;
     next();
   } catch (e) {
     next(e);
