@@ -1,34 +1,31 @@
 import {RoomMessages, Users} from "../models";
 import HttpErrors from "http-errors";
-import JWT from "jsonwebtoken";
 import Socket from "../services/Socket";
-import sequelize from "../services/sequelize";
 
-const {JWT_SECRET} = process.env;
 
 class MessagesController {
   static getMessages = async (req, res, next) => {
     try {
-      const {authorization} = req.headers;
-      const token = authorization.replace('Bearer ', '');
-      const {roomId, userId} = JWT.verify(token, JWT_SECRET);
-
+      const {userId, roomId, userType} = req.account;
       const user = await Users.findOne({
         where: {
           id: userId,
         },
+        attributes: ['createdAt'],
+        raw: true
       })
+      const where = {
+        roomId,
+      }
+      if (userType !== 1) {
+        where.createdAt = {$gte: user.createdAt};
+      }
       const messages = await RoomMessages.findAll({
-        where: {
-          roomId,
-          createdAt: {
-            $gte: user.createdAt
-          },
-        },
-        // attributes: ['message', 'senderId', 'createdAt'],
+        where,
+        attributes: ['id', 'message', 'senderId', 'createdAt', 'senderName'],
         raw: true
       });
-
+      console.log(messages)
       res.json({
         messages,
         status: 'ok',
@@ -40,7 +37,7 @@ class MessagesController {
   static sendMessage = async (req, res, next) => {
     try {
       const {message = ''} = req.body;
-      const {roomId = '', userId = '', userName = ''} = req;
+      const {roomId = '', userId = '', userName = ''} = req.account;
       if (!message) {
         throw HttpErrors(404, 'no message')
       }
@@ -50,7 +47,7 @@ class MessagesController {
         roomId,
         senderName: userName
       })
-      Socket.emit('room_' + roomId, 'new-message', dataValues)
+      Socket.emit('room_' + roomId, 'new-message', dataValues);
       res.json({
         status: 'ok',
       })
@@ -61,15 +58,21 @@ class MessagesController {
 
   static deleteMessage = async (req, res, next) => {
     try {
-      const {messageId = '', senderId = ''} = req.query;
-      const {userId = ''} = req;
-      if (+senderId === +userId) {
+      const {messageId = ''} = req.body;
+      const {userId} = req.account;
+      const message = await RoomMessages.findOne({
+        where: {
+          id: messageId
+        },
+        attributes: ['senderId'],
+        raw: true
+      })
+      if (message.senderId === userId) {
         await RoomMessages.destroy({
-          where: {
-            id: messageId
-          }
+          id: messageId
         })
       }
+
       res.json({
         status: 'ok',
       });

@@ -1,5 +1,6 @@
 import validate from "../services/validate";
 import {Interest, Age} from "../models";
+import _ from 'lodash'
 
 class FormController {
   static getFormData = async (req, res, next) => {
@@ -22,25 +23,43 @@ class FormController {
   static addField = async (req, res, next) => {
     try {
       const {newAge = '', newInterest = ''} = req.body;
-      validate(req.body, {
-        newAge: 'string|min:2|max:10',
-        newInterest: 'string|min:2|max:15',
-      });
-      if (newAge) {
-        await Age.findOrCreate({
-          where: {value: newAge}
+      const {userType = ''} = req.account;
+      if (+userType === 1) {
+        validate(req.body, {
+          newAge: 'string|min:2|max:10',
+          newInterest: 'string|min:2|max:15',
+        });
+        const age = await Age.findOne({
+          where: {
+            value: newAge
+          },
+        })
+        const interest = await Interest.findOne({
+          where: {
+            value: newInterest
+          },
+        })
+        const newValues = {
+          age: {},
+          interest: {}
+        }
+        if (_.isEmpty(age)) {
+          const {id, value} = await Age.create({
+            value: newAge,
+          })
+          newValues.age = {id, value};
+        }
+        if (_.isEmpty(interest)) {
+          const {id, value} = await Interest.create({
+            value: newInterest,
+          })
+          newValues.interest = {id, value};
+        }
+        res.json({
+          status: 'ok',
+          newValues
         })
       }
-      if (newInterest) {
-        await Interest.findOrCreate({
-          where: {value: newInterest}
-        });
-      }
-      res.json({
-        status: 'ok',
-        newAge,
-        newInterest
-      })
     } catch (e) {
       next(e);
     }

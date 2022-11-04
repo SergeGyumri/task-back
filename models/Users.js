@@ -3,13 +3,13 @@ import sequelize from "../services/sequelize";
 import Rooms from "./Rooms";
 import md5 from 'md5'
 
-const {ADMIN_PASSWORD, PASSWORD_SECRET, ADMIN_USER_NAME} = process.env;
+const {ADMIN_PASSWORD, PASSWORD_SECRET, ADMIN_USER_LOGIN} = process.env;
 
 class Users extends Model {
   static async sync(options) {
     await super.sync(options);
     await Users.create({
-      name: ADMIN_USER_NAME, type: 1, password: ADMIN_PASSWORD
+      login: ADMIN_USER_LOGIN, type: 1, password: ADMIN_PASSWORD
     })
   }
 
@@ -25,9 +25,14 @@ Users.init({
     autoIncrement: true,
     primaryKey: true,
   },
-  name: {
+  login: {
     type: DataTypes.STRING,
     allowNull: false,
+    primaryKey: true,
+  },
+  name: {
+    type: DataTypes.STRING,
+    allowNull: true
   },
   type: {
     type: DataTypes.TINYINT,

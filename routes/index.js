@@ -3,11 +3,13 @@ import form from "./form";
 import users from "./users";
 import messages from "./messages";
 import admin from "./admin";
+import checkAdmin from '../middlewares/checkAdmin'
+
 const router = express.Router();
 
 /* GET home page. */
 router.use('/form', form);
-router.use('/admin', admin);
+router.use('/admin', checkAdmin, admin);
 router.use('/users', users);
 router.use('/messages', messages);
 
