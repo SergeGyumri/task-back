@@ -26,6 +26,11 @@ RoomMessages.init({
     type: DataTypes.STRING,
     allowNull: false,
   },
+  deleted: {
+    type: DataTypes.TINYINT,
+    defaultValue : false,
+    allowNull: false,
+  },
 }, {
   sequelize,
   tableName: 'roomMessages',

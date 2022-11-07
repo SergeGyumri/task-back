@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.get('/get-messages', MessagesController.getMessages);
 router.post('/send-message', MessagesController.sendMessage);
-router.delete('/delete-message', MessagesController.deleteMessage);
+router.delete('/delete-message/:messageId', MessagesController.deleteMessage);
 
 
 export default router;

@@ -19,13 +19,13 @@ class MessagesController {
       }
       if (userType !== 1) {
         where.createdAt = {$gte: user.createdAt};
+        where.deleted = false;
       }
       const messages = await RoomMessages.findAll({
         where,
         attributes: ['id', 'message', 'senderId', 'createdAt', 'senderName'],
         raw: true
       });
-      console.log(messages)
       res.json({
         messages,
         status: 'ok',
@@ -50,6 +50,7 @@ class MessagesController {
       Socket.emit('room_' + roomId, 'new-message', dataValues);
       res.json({
         status: 'ok',
+        dataValues
       })
     } catch (e) {
       next(e);
@@ -58,21 +59,23 @@ class MessagesController {
 
   static deleteMessage = async (req, res, next) => {
     try {
-      const {messageId = ''} = req.body;
-      const {userId} = req.account;
-      const message = await RoomMessages.findOne({
+      const {messageId = ''} = req.params;
+      const {userId, roomId, userType} = req.account;
+      const {senderId} = await RoomMessages.findOne({
         where: {
           id: messageId
         },
         attributes: ['senderId'],
         raw: true
       })
-      if (message.senderId === userId) {
-        await RoomMessages.destroy({
-          id: messageId
+      if (senderId === userId || userType === 1) {
+        await RoomMessages.update({deleted: true}, {
+          where: {
+            id: messageId
+          }
         })
       }
-
+      Socket.emit('room_' + roomId, 'delete-message', messageId);
       res.json({
         status: 'ok',
       });

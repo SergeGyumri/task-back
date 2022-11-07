@@ -39,6 +39,11 @@ Users.init({
     allowNull: false,
     defaultValue: 0
   },
+  blocked: {
+    type: DataTypes.TINYINT,
+    defaultValue: false,
+    allowNull: false,
+  },
   password: {
     type: DataTypes.CHAR(32),
     get() {

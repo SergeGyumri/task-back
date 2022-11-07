@@ -21,7 +21,6 @@ class Socket {
       client.on("typing", (user) => {
         client.broadcast.to('room_' + user.roomId).emit("typing");
       });
-
     } catch (e) {
       console.log(e)
     }
