@@ -1,7 +1,6 @@
 import {Users, Rooms} from "../models";
 import HttpErrors from "http-errors";
 import JWT from "jsonwebtoken";
-import jwt from "jsonwebtoken";
 import validate from "../services/validate";
 import _ from "lodash";
 
@@ -21,7 +20,7 @@ class UsersController {
         },
       })
       if (!_.isEmpty(findUser)) {
-        throw HttpErrors(422, 'this login is already taken, choose another login');
+        throw HttpErrors(422, {errors: {data: ['this login is already taken, choose another login']}});
       }
       await Users.create({
         login,
@@ -44,11 +43,11 @@ class UsersController {
       const user = await Users.findOne({
         where: {
           login,
-          password: Users.hash(password)
+          password: Users.hash(password),
         },
       })
       if (_.isEmpty(user)) {
-        throw HttpErrors(422, 'wrong login or password');
+        throw HttpErrors(422, {errors: {data: ['wrong login or password']}});
       }
       const token = JWT.sign({userId: user.id, type: user.type}, JWT_SECRET);
       res.json({
@@ -69,22 +68,33 @@ class UsersController {
         interestId: 'numeric|required',
         userName: 'string|min:3|max:15|required',
       });
+
       const room = await Rooms.findOrCreate({
         where: {ageId, interestId},
         attributes: ['id'],
         raw: true,
       })
+      const {blocked} = await Users.findOne({
+        where: {
+          id: userId,
+        },
+        attributes: ['blocked'],
+        raw: true
+      })
+      if (+blocked === 1) {
+        throw HttpErrors(422, {errors: {data: ['your account is blocked']}});
+      }
       await Users.update({
         roomId: room[0].id,
         name: userName,
       }, {
         where: {
-          id: userId
+          id: userId,
         },
       });
       const user = await Users.findOne({
         where: {
-          id: userId
+          id: userId,
         },
         attributes: ['id', 'roomId', 'name', 'type'],
         raw: true
@@ -93,7 +103,7 @@ class UsersController {
       res.json({
         status: 'ok',
         token,
-        account : user
+        account: user
       })
     } catch (e) {
       next(e);

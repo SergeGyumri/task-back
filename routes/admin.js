@@ -1,10 +1,8 @@
 import express from "express";
 import AdminController from "../controllers/AdminController";
+import checkAdmin from "../middlewares/checkAdmin";
 
 const router = express.Router();
-router.get('/block-user', AdminController.blockUser);
-router.delete('/delete-message', AdminController.deleteMessage);
-
-
+router.put('/block-user', checkAdmin, AdminController.blockUser);
 
 export default router;

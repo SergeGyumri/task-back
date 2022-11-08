@@ -1,27 +1,28 @@
-import validate from "../services/validate";
 import {Users} from "../models";
-import HttpErrors from "http-errors";
-import _ from 'lodash'
-import JWT from "jsonwebtoken";
-
-const {JWT_SECRET} = process.env;
+import socket from "../services/Socket";
 
 class AdminController {
   static blockUser = async (req, res, next) => {
     try {
-
+      const {userId} = req.body;
+      const {userType} = req.account;
+      if (userType === 1) {
+        await Users.update({blocked: true}, {
+          where: {
+            id: userId,
+          }
+        })
+        const message = 'your account is blocked';
+        socket.emit('user_' + userId, 'user-block', {userId, message})
+      }
+      res.json({
+        status: 'ok',
+      });
     } catch (e) {
       next(e);
     }
   }
 
-  static deleteMessage = async (req, res, next) => {
-    try {
-
-    } catch (e) {
-      next(e)
-    }
-  }
 }
 
 export default AdminController;
